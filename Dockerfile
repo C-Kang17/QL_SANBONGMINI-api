@@ -11,6 +11,8 @@ RUN apt-get update && \
     g++ \
     wget \
     unzip \
+    # Oracle Instant Client needs this library to work
+    libaio1 \  
     && rm -rf /var/lib/apt/lists/*
 
 # Install Oracle Instant Client
@@ -27,8 +29,13 @@ COPY . /app
 # Install Python dependencies
 # RUN pip install --no-cache-dir fastapi sqlalchemy pydantic uvicorn cx_Oracle
 RUN pip install --no-cache-dir -r requirements.txt
+
+
 # Set environment variables for Oracle Instant Client
-ENV LD_LIBRARY_PATH=/opt/oracle/instantclient_23_5
+#Corrected this to include existing LD_LIBRARY_PATH
+ENV LD_LIBRARY_PATH=/opt/oracle:$LD_LIBRARY_PATH  
+
+
 
 # Expose the port the app runs on
 EXPOSE 8000
