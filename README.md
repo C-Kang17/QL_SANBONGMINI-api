@@ -1,3 +1,19 @@
+# Trước tiên thay đổi địa chỉ ip trong db/config và db/database
+### Bước 1: bật CMD nhập
+```bash
+ipconfig
+```
+kết quả ra rất nhiều tìm mục Wifi xem IPv4 Address là gì copy lại.   
+vào db/config và db/database parst cái ip đó thế cái ip được hiện bên trong
+> #### Tại db/config.py
+Thay thế IP trong biến DB_HOST
+> #### Tại db/database.py
+Thay thế IP trong đây 
+```bash
+DB_HOST = os.getenv("DB_HOST", "192.168.1.6")
+```
+// **như vậy là xong :))**   
+
 # Để chạy trên docker
 ### Bước 1: mở CMD của folder chứa dự án.
 ### Bước 2: nhập lệnh sau
