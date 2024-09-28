@@ -1,0 +1,1 @@
+DB_HOST = "192.168.1.6"  # Thay đổi IP khi cần thiết

@@ -7,6 +7,7 @@ WORKDIR /app
 # Install system dependencies and utilities
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
+    iputils-ping\
     gcc \
     g++ \
     wget \
@@ -14,7 +15,6 @@ RUN apt-get update && \
     # Oracle Instant Client needs this library to work
     libaio1 \  
     && rm -rf /var/lib/apt/lists/*
-
 # Install Oracle Instant Client
 RUN wget https://download.oracle.com/otn_software/linux/instantclient/2350000/instantclient-basic-linux.x64-23.5.0.24.07.zip && \
     unzip instantclient-basic-linux.x64-23.5.0.24.07.zip && \
