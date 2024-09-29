@@ -1,16 +1,16 @@
 import re
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from module.v1.Users import models
+from module.v1.Staffs import models
 import random
 
 def generate_ma_nv() -> str:
     prefix = "NV"
     # Tạo 8 chữ số ngẫu nhiên
     random_digits = ''.join([str(random.randint(0, 9)) for _ in range(8)])
-    # Ghép tiền tố KH với chuỗi số ngẫu nhiên
-    ma_kh = prefix + random_digits
-    return ma_kh
+    # Ghép tiền tố NV với chuỗi số ngẫu nhiên
+    ma_nv = prefix + random_digits
+    return ma_nv
 
 def check_password_length(password: str) -> bool:
     if len(password) < 8:
@@ -32,4 +32,4 @@ def validate_email_format(email: str) -> bool:
 
 # Kiểm tra email có tồn tại trong cơ sở dữ liệu
 def check_existing_email(db: Session, email: str):
-    return db.query(models.User).filter(models.User.email_kh == email).first()
+    return db.query(models.Staff).filter(models.Staff.email_nv == email).first()

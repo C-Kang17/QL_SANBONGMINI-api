@@ -11,8 +11,9 @@ router = APIRouter(
 # Đăng ký người dùng mới
 @router.post("/register/", response_model=schemas.StaffRegisterResponse)
 def register_staff(staff: schemas.StaffRegister, db: Session = Depends(get_db)):
+    ma_nv = services.generate_ma_nv()
     # Kiểm tra người dùng đã tồn tại chưa
-    db_staff = db.query(models.Staff).filter(models.Staff.ma_nv == staff.ma_nv).first()
+    db_staff = db.query(models.Staff).filter(models.Staff.ma_nv == ma_nv).first()
     if db_staff:
         raise HTTPException(status_code=400, detail="Staff already registered")
     
@@ -24,14 +25,16 @@ def register_staff(staff: schemas.StaffRegister, db: Session = Depends(get_db)):
     
     # Kiểm tra độ dài mật khẩu
     services.check_password_length(staff.pass_nv)
-    ma_nv = services.generate_ma_nv()
+    
     # Tạo người dùng mới
     db_staff = models.Staff(
         ma_nv=ma_nv,
+        ten_nv= staff.ten_nv,
         pass_nv= staff.pass_nv,
-        ten_nv=staff.ten_nv,
-        sdt_nv=staff.sdt_nv,
-        email_nv=staff.email_nv
+        sdt_nv= staff.sdt_nv,
+        dia_chi= staff.dia_chi,
+        email_nv= staff.email_nv,
+        chuc_vu= staff.chuc_vu
     )
     db.add(db_staff)
     db.commit()

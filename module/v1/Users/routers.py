@@ -11,8 +11,9 @@ router = APIRouter(
 # Đăng ký người dùng mới
 @router.post("/register/", response_model=schemas.UserRegisterResponse)
 def register_user(user: schemas.UserRegister, db: Session = Depends(get_db)):
+    ma_kh = services.generate_ma_kh()
     # Kiểm tra người dùng đã tồn tại chưa
-    db_user = db.query(models.User).filter(models.User.ma_kh == user.ma_kh).first()
+    db_user = db.query(models.User).filter(models.User.ma_kh == ma_kh).first()
     if db_user:
         raise HTTPException(status_code=400, detail="User already registered")
     
@@ -24,7 +25,6 @@ def register_user(user: schemas.UserRegister, db: Session = Depends(get_db)):
     
     # Kiểm tra độ dài mật khẩu
     services.check_password_length(user.pass_kh)
-    ma_kh = services.generate_ma_kh()
     # Tạo người dùng mới
     db_user = models.User(
         ma_kh=ma_kh,

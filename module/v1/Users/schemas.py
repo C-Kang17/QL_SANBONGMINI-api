@@ -2,7 +2,6 @@ from pydantic import BaseModel, EmailStr
 from typing import Optional
 
 class UserRegister (BaseModel):
-    ma_kh: str
     pass_kh: str
     ten_kh: str
     sdt_kh: str = None
