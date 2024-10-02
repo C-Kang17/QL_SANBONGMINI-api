@@ -22,6 +22,7 @@ RUN wget https://download.oracle.com/otn_software/linux/instantclient/2350000/in
     rm instantclient-basic-linux.x64-23.5.0.24.07.zip && \
     echo /opt/oracle/instantclient_23_5 > /etc/ld.so.conf.d/oracle-instantclient.conf && \
     ldconfig
+    
 
 # Copy the application code to the container
 COPY . /app
@@ -33,8 +34,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Set environment variables for Oracle Instant Client
 #Corrected this to include existing LD_LIBRARY_PATH
+ARG LD_LIBRARY_PATH
 ENV LD_LIBRARY_PATH=/opt/oracle:$LD_LIBRARY_PATH  
-
 
 
 # Expose the port the app runs on

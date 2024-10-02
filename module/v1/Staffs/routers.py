@@ -49,7 +49,7 @@ def login(staff: schemas.StaffLogin, db: Session = Depends(get_db)):
     db_staff = db.query(models.Staff).filter(models.Staff.email_nv == staff.email_nv).first()
 
     if db_staff is None:
-        raise HTTPException(status_code=404, detail="Invalid staffname or password")
+        raise HTTPException(status_code=404, detail="Invalid email or password")
     
     # Kiểm tra độ dài mật khẩu
     services.check_password_length(staff.pass_nv)

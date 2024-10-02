@@ -3,8 +3,8 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 from db.config import DB_HOST
 import os
 
-# Thay đổi các thông tin kết nối phù hợp với cấu hình của bạn
-DB_HOST = os.getenv("DB_HOST", "192.168.1.13")
+# Thay đổi các thông tin kết nối phù hợp với cấu hình
+DB_HOST = os.getenv("DB_HOST", "192.168.1.6")
 DATABASE_URL = f"oracle+cx_oracle://QL_SANBONGMINI:123@{DB_HOST}:1521/orcl2"
 
 engine = create_engine(DATABASE_URL, echo=True)
