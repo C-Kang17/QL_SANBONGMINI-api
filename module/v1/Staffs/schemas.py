@@ -25,4 +25,4 @@ class StaffLogin(BaseModel):
     pass_nv: str
 
 class StaffLoginResponse(BaseModel):
-    email_nv: str
+    chuc_vu: str

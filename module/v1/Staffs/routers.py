@@ -34,7 +34,7 @@ def register_staff(staff: schemas.StaffRegister, db: Session = Depends(get_db)):
         sdt_nv= staff.sdt_nv,
         dia_chi= staff.dia_chi,
         email_nv= staff.email_nv,
-        chuc_vu= staff.chuc_vu
+        chuc_vu= staff.chuc_vu.lower()
     )
     db.add(db_staff)
     db.commit()
@@ -42,8 +42,8 @@ def register_staff(staff: schemas.StaffRegister, db: Session = Depends(get_db)):
     return db_staff
 
 # Đăng nhập người dùng
-@router.post("/login/", status_code=201,responses={
-                201: {"description": "Login staff success"},
+@router.post("/login/", status_code=200,responses={
+                200: {"model": schemas.StaffLoginResponse,"description": "Login staff success"},
                 })
 def login(staff: schemas.StaffLogin, db: Session = Depends(get_db)):
     db_staff = db.query(models.Staff).filter(models.Staff.email_nv == staff.email_nv).first()
@@ -57,5 +57,8 @@ def login(staff: schemas.StaffLogin, db: Session = Depends(get_db)):
     #Kiểm tra mật khẩu có chính xác không
     if not services.verify_password(staff.pass_nv, db_staff.pass_nv):
         raise HTTPException(status_code=401, detail="Password is incorrect!")
-    
-    return {"message": "Login successful"}
+    responses = schemas.StaffLoginResponse(
+        chuc_vu = db_staff.chuc_vu
+    )
+
+    return responses

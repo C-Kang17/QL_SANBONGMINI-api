@@ -22,6 +22,7 @@ docker build -t doan-api .
 ```
 docker network create doan_network
 docker run --network doan_network -p 8000:8000 doan-api  
+
 ### Bước 3: sau khi đã build xong ta sẽ chạy lệnh run
 ```bash
 # Kết nối ngoài trường
@@ -29,7 +30,7 @@ docker run -p 8000:8000 doan-api
 ```
 ```bash
 # Kết nối trong trường.
-docker run --network="host" doan-api
+docker run --network=host doan-api
 
 ```
 

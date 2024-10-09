@@ -15,7 +15,7 @@ class UserRegisterResponse(BaseModel):
     pass_kh: str
     ten_kh: str
     sdt_kh: str = None
-    email_kh: Optional[EmailStr] 
+    email_kh: Optional[str] 
 
 class UserLogin(BaseModel):
     email_kh: str
@@ -23,3 +23,4 @@ class UserLogin(BaseModel):
 
 class UserLoginResponse(BaseModel):
     email_kh: str
+    
