@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from db.database import get_db
 from module.v1.Users import schemas, models, services
 from db.config import DB_HOST
+from config import *
 import cx_Oracle
 
 router = APIRouter(
@@ -46,22 +47,24 @@ def decrypt_caesar(enc: str, k: int) -> str:
 @router.post("/register/", response_model=schemas.UserRegisterResponse)
 def register_user(user: schemas.UserRegister, db: Session = Depends(get_db)):
     ma_kh = services.generate_ma_kh()
+
     # Kiểm tra người dùng đã tồn tại chưa
     db_user = db.query(models.User).filter(models.User.ma_kh == ma_kh).first()
     if db_user:
         raise HTTPException(status_code=400, detail="User already registered")
     
+    encrypt_email=encrypt_caesar(user.email_kh, key)
     # Kiểm tra email của người dùng đã tồn tại chưa
-    
     services.validate_email_format(user.email_kh)
-    encrypt_email=encrypt_caesar(user.email_kh,3)
+
     db_user = services.check_existing_email(db, encrypt_email)
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
+    
     # Kiểm tra độ dài mật khẩu
     services.check_password_length(user.pass_kh)
-    encrypt_pass=encrypt_caesar(user.pass_kh,3)
-    
+    encrypt_pass = services.encrypt_multiplicative_caesar(user.pass_kh, key)
+
     # Tạo người dùng mới
     db_user = models.User(
         ma_kh=ma_kh,
@@ -80,7 +83,7 @@ def register_user(user: schemas.UserRegister, db: Session = Depends(get_db)):
                 201: {"description": "Login user success"},
                 })
 def login(user: schemas.UserLogin, db: Session = Depends(get_db)):
-    en_email =encrypt_caesar( user.email_kh,3)
+    en_email =encrypt_caesar( user.email_kh, key)
     db_user = db.query(models.User).filter(models.User.email_kh == en_email).first()
 
     if db_user is None:
@@ -88,7 +91,8 @@ def login(user: schemas.UserLogin, db: Session = Depends(get_db)):
     
     # Kiểm tra độ dài mật khẩu
     services.check_password_length(user.pass_kh)
-    en_pass = encrypt_caesar(user.pass_kh,3)
+    en_pass = services.encrypt_multiplicative_caesar(user.pass_kh, key)
+
     #Kiểm tra mật khẩu có chính xác không
     if not services.verify_password(en_pass, db_user.pass_kh):
         raise HTTPException(status_code=401, detail="Password is incorrect!")
