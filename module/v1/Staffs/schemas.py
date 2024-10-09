@@ -17,7 +17,7 @@ class StaffRegisterResponse(BaseModel):
     pass_nv: str
     sdt_nv: str
     dia_chi: str
-    email_nv: Optional[EmailStr] 
+    email_nv: Optional[str] 
     chuc_vu: str
 
 class StaffLogin(BaseModel):
