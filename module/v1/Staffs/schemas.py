@@ -21,7 +21,7 @@ class StaffRegisterResponse(BaseModel):
     chuc_vu: str
 
 class StaffLogin(BaseModel):
-    email_nv: str
+    ma_nv: str
     pass_nv: str
 
 class StaffLoginResponse(BaseModel):

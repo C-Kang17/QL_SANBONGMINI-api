@@ -60,12 +60,12 @@ def register_staff(staff: schemas.StaffRegister, db: Session = Depends(get_db)):
     
     # Kiểm tra độ dài mật khẩu
     services.check_password_length(staff.pass_nv)
-    
+    en_pass = services.encrypt_multiplicative_caesar(staff.pass_nv, key)
     # Tạo người dùng mới
     db_staff = models.Staff(
         ma_nv=ma_nv,
         ten_nv= staff.ten_nv,
-        pass_nv= staff.pass_nv,
+        pass_nv= en_pass,
         sdt_nv= staff.sdt_nv,
         dia_chi= staff.dia_chi,
         email_nv= encrypt_email,
@@ -81,17 +81,17 @@ def register_staff(staff: schemas.StaffRegister, db: Session = Depends(get_db)):
                 200: {"model": schemas.StaffLoginResponse,"description": "Login staff success"},
                 })
 def login(staff: schemas.StaffLogin, db: Session = Depends(get_db)):
-    encrypt_email=encrypt_caesar(staff.email_nv, key)
-    db_staff = db.query(models.Staff).filter(models.Staff.email_nv == encrypt_email).first()
+    db_staff = db.query(models.Staff).filter(models.Staff.ma_nv == staff.ma_nv).first()
 
     if db_staff is None:
-        raise HTTPException(status_code=404, detail="Invalid email or password")
+        raise HTTPException(status_code=404, detail="Invalid 'Mã Nhân viên' or password")
     
     en_pass = services.encrypt_multiplicative_caesar(staff.pass_nv, key)
 
     #Kiểm tra mật khẩu có chính xác không
     if not services.verify_password(en_pass, db_staff.pass_nv):
         raise HTTPException(status_code=401, detail="Password is incorrect!")
+    
     responses = schemas.StaffLoginResponse(
         chuc_vu = db_staff.chuc_vu
     )
