@@ -45,7 +45,7 @@ def decrypt_caesar(enc: str, k: int) -> str:
 
 #Lấy tất cả thông tin Users
 @router.get("/all", response_model=list[schemas.UserRegisterResponse])
-def get_all_staff(db: Session = Depends(get_db)):
+def get_all_user(db: Session = Depends(get_db)):
     staffs = db.query(models.User).all()
     if not staffs:
         raise HTTPException(status_code=404, detail="Users no exist")
