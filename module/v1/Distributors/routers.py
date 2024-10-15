@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from db.database import get_db
 from module.v1.Distributors import schemas, models, services
 from module.v1.Staffs import models as models_staff
-from db.config import DB_HOST
+from db.config import *
 from module.v1.Distributors.config import key
 import cx_Oracle
 
@@ -15,8 +15,8 @@ router = APIRouter(
 def encrypt_caesar(p: str, k: int) -> str:
     try:
         # Thiết lập kết nối với Oracle
-        dsn = cx_Oracle.makedsn(DB_HOST, 1521, service_name="orcl2")
-        connection = cx_Oracle.connect(user="QL_SANBONGMINI", password="123", dsn=dsn)
+        dsn = cx_Oracle.makedsn(DB_HOST, DB_PORT, service_name=DB_SID)
+        connection = cx_Oracle.connect(user=DB_USER, password=DB_PASS, dsn=dsn)
         cursor = connection.cursor()
 
         # Gọi hàm encryptExtCaesarMult từ Oracle
@@ -31,8 +31,8 @@ def encrypt_caesar(p: str, k: int) -> str:
 def decrypt_caesar(enc: str, k: int) -> str:
     try:
         # Thiết lập kết nối với Oracle
-        dsn = cx_Oracle.makedsn(DB_HOST, 1521, service_name="orcl2")
-        connection = cx_Oracle.connect(user="QL_SANBONGMINI", password="123", dsn=dsn)
+        dsn = cx_Oracle.makedsn(DB_HOST, DB_PORT, service_name=DB_SID)
+        connection = cx_Oracle.connect(user=DB_USER, password=DB_PASS, dsn=dsn)
         cursor = connection.cursor()
 
         # Gọi hàm decryptExtCaesarMult từ Oracle
