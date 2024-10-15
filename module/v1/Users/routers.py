@@ -43,8 +43,16 @@ def decrypt_caesar(enc: str, k: int) -> str:
     except cx_Oracle.DatabaseError as e:
         raise HTTPException(status_code=500, detail="Database error: " + str(e))
 
+#Lấy tất cả thông tin Users
+@router.get("/all", response_model=list[schemas.UserRegisterResponse])
+def get_all_staff(db: Session = Depends(get_db)):
+    staffs = db.query(models.User).all()
+    if not staffs:
+        raise HTTPException(status_code=404, detail="Users no exist")
+    return staffs
+
 # Đăng ký người dùng mới
-@router.post("/register/", response_model=schemas.UserRegisterResponse)
+@router.post("/register", response_model=schemas.UserRegisterResponse)
 def register_user(user: schemas.UserRegister, db: Session = Depends(get_db)):
     ma_kh = services.generate_ma_kh()
 
@@ -79,7 +87,7 @@ def register_user(user: schemas.UserRegister, db: Session = Depends(get_db)):
     return db_user
 
 # Đăng nhập người dùng
-@router.post("/login/", status_code=201,responses={
+@router.post("/login", status_code=201,responses={
                 201: {"description": "Login user success"},
                 })
 def login(user: schemas.UserLogin, db: Session = Depends(get_db)):

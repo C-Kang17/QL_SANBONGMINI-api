@@ -41,8 +41,16 @@ def decrypt_caesar(enc: str, k: int) -> str:
     except cx_Oracle.DatabaseError as e:
         raise HTTPException(status_code=500, detail="Database error: " + str(e))
 
+#Lấy tất cả thông tin của staffs
+@router.get("/all", response_model=list[schemas.StaffRegisterResponse])
+def get_all_staff(db: Session = Depends(get_db)):
+    staffs = db.query(models.Staff).all()
+    if not staffs:
+        raise HTTPException(status_code=404, detail="No staff found")
+    return staffs
+
 # Đăng ký người dùng mới
-@router.post("/register/", response_model=schemas.StaffRegisterResponse)
+@router.post("/register", response_model=schemas.StaffRegisterResponse)
 def register_staff(staff: schemas.StaffRegister, db: Session = Depends(get_db)):
     ma_nv = services.generate_ma_nv()
     # Kiểm tra người dùng đã tồn tại chưa
@@ -77,7 +85,7 @@ def register_staff(staff: schemas.StaffRegister, db: Session = Depends(get_db)):
     return db_staff
 
 # Đăng nhập người dùng
-@router.post("/login/", status_code=200,responses={
+@router.post("/login", status_code=200,responses={
                 200: {"model": schemas.StaffLoginResponse,"description": "Login staff success"},
                 })
 def login(staff: schemas.StaffLogin, db: Session = Depends(get_db)):

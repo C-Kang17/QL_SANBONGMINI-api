@@ -44,8 +44,19 @@ def decrypt_caesar(enc: str, k: int) -> str:
     except cx_Oracle.DatabaseError as e:
         raise HTTPException(status_code=500, detail="Database error: " + str(e))
 
+#Lấy tất cả thông tin nhà phân phối 
+@router.get("/all", response_model=list[schemas.DistributorRegisterResponse])
+def get_all_distributors(db: Session = Depends(get_db)):
+    distributors = db.query(models.Distributor).all()
+    results=[
+            
+    ]
+    if not distributors:
+        raise HTTPException(status_code=404, detail="No distributors found")
+    return distributors
+
 # Đăng ký nhà phân phối mới
-@router.post("/register/", response_model=schemas.DistributorRegisterResponse)
+@router.post("/register", response_model=schemas.DistributorRegisterResponse)
 def create_distributor(distributor: schemas.DistributorRegister, db: Session = Depends(get_db)):
     db_staff = db.query(models_staff.Staff).filter(models_staff.Staff.ma_nv == distributor.ma_nv).first()
     if db_staff is None:
