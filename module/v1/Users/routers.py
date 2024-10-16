@@ -44,7 +44,7 @@ def decrypt_caesar(enc: str, k: int) -> str:
         raise HTTPException(status_code=500, detail="Database error: " + str(e))
 
 #Lấy tất cả thông tin Users
-@router.get("/all", response_model=list[schemas.UserRegisterResponse])
+@router.get("/all", response_model=list[schemas.UserResponse])
 def get_all_user(db: Session = Depends(get_db)):
     staffs = db.query(models.User).all()
     if not staffs:
@@ -52,7 +52,7 @@ def get_all_user(db: Session = Depends(get_db)):
     return staffs
 
 # Đăng ký người dùng mới
-@router.post("/register", response_model=schemas.UserRegisterResponse)
+@router.post("/register", response_model=schemas.UserResponse)
 def register_user(user: schemas.UserRegister, db: Session = Depends(get_db)):
     ma_kh = services.generate_ma_kh()
 
@@ -106,3 +106,35 @@ def login(user: schemas.UserLogin, db: Session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Password is incorrect!")
     
     return {"message": "Login successful"}
+
+@router.put("/edit/{ma_kh}", response_model=schemas.UserResponse)
+def edit_user(ma_kh: str, user: schemas.UserEditResquest, db: Session = Depends(get_db)):
+    # Lấy thông tin người dùng từ database
+    db_user = db.query(models.User).filter(models.User.ma_kh == ma_kh).first()
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Lấy dữ liệu hiện tại của user từ database, sử dụng model_dump để loại bỏ các field None
+    data = user.model_dump(exclude_none=True)
+
+    # Kiểm tra nếu không có thay đổi gì
+    if not any(getattr(db_user, k) != value for k, value in data.items()):
+        raise HTTPException(status_code=304, detail="No modifications")
+    
+    if data.get("pass_kh"):
+        encrypt_password  = encrypt_caesar(data["pass_kh"], key)
+        data["pass_kh"] = encrypt_password
+    if data.get("ten_kh"):
+        encrypt_name = encrypt_caesar(data["ten_kh"], key)
+        data["ten_kh"] = encrypt_name
+    if data.get("sdt_kh"):
+        encrypt_phone=encrypt_caesar(data["sdt_kh"], key)
+        data["sdt_kh"] = encrypt_phone
+
+    # Cập nhật các trường có thay đổi
+    for k, value in data.items():
+        setattr(db_user, k, value)
+
+    db.commit()
+    db.refresh(db_user)
+    return db_user

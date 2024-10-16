@@ -42,7 +42,7 @@ def decrypt_caesar(enc: str, k: int) -> str:
         raise HTTPException(status_code=500, detail="Database error: " + str(e))
 
 #Lấy tất cả thông tin của staffs
-@router.get("/all", response_model=list[schemas.StaffRegisterResponse])
+@router.get("/all", response_model=list[schemas.StaffResponse])
 def get_all_staff(db: Session = Depends(get_db)):
     staffs = db.query(models.Staff).all()
     if not staffs:
@@ -50,15 +50,15 @@ def get_all_staff(db: Session = Depends(get_db)):
     return staffs
 
 # Đăng ký người dùng mới
-@router.post("/register", response_model=schemas.StaffRegisterResponse)
+@router.post("/register", response_model=schemas.StaffResponse)
 def register_staff(staff: schemas.StaffRegister, db: Session = Depends(get_db)):
     ma_nv = services.generate_ma_nv()
+
     # Kiểm tra người dùng đã tồn tại chưa
     db_staff = db.query(models.Staff).filter(models.Staff.ma_nv == ma_nv).first()
     if db_staff:
         raise HTTPException(status_code=400, detail="Staff already registered")
     
-
     encrypt_email=encrypt_caesar(staff.email_nv, key)
     # Kiểm tra email của người dùng đã tồn tại chưa
     services.validate_email_format(staff.email_nv)
@@ -105,3 +105,34 @@ def login(staff: schemas.StaffLogin, db: Session = Depends(get_db)):
     )
 
     return responses
+
+print(key)
+
+@router.put("/edit/{ma_nv}", response_model=schemas.StaffResponse)
+def edit_staff(ma_nv: str, staff: schemas.StaffEditRequest, db: Session = Depends(get_db)):
+    # Lấy thông tin nhân viên từ database
+    db_staff = db.query(models.Staff).filter(models.Staff.ma_nv == ma_nv).first()
+    if db_staff is None:
+        raise HTTPException(status_code=404, detail="Staff not found")
+
+    # Lấy dữ liệu hiện tại của staff từ database, sử dụng model_dump để loại bỏ các field None
+    data = staff.model_dump(exclude_none=True)
+
+    # Kiểm tra nếu không có thay đổi gì
+    if not any(getattr(db_staff, k) != value for k, value in data.items()):
+        raise HTTPException(status_code=304, detail="No modifications")
+    
+    if data.get("pass_nv"):
+        en_pass = services.encrypt_multiplicative_caesar(data["pass_nv"], key)
+        data["pass_nv"] = en_pass
+    if data.get("email_nv"):
+        encrypt_email=encrypt_caesar(data["email_nv"], key)
+        data["email_nv"] = encrypt_email
+
+    # Cập nhật các trường có thay đổi
+    for k, value in data.items():
+        setattr(db_staff, k, value)
+
+    db.commit()
+    db.refresh(db_staff)
+    return db_staff

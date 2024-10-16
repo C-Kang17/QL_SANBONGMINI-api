@@ -11,14 +11,14 @@ class StaffRegister (BaseModel):
     class Config:
         orm_mode = True
 
-class StaffRegisterResponse(BaseModel):
-    ma_nv: str
-    ten_nv: str
-    pass_nv: str
-    sdt_nv: str
-    dia_chi: str
-    email_nv: str 
-    chuc_vu: str
+class StaffResponse(BaseModel):
+    ma_nv: str = None
+    ten_nv: str = None
+    pass_nv: str = None
+    sdt_nv: str = None
+    dia_chi: str = None
+    email_nv: str = None 
+    chuc_vu: str = None
 
 class StaffLogin(BaseModel):
     ma_nv: str
@@ -26,3 +26,13 @@ class StaffLogin(BaseModel):
 
 class StaffLoginResponse(BaseModel):
     chuc_vu: str
+
+class StaffEditRequest(BaseModel):
+    ten_nv: Optional[str] = None
+    pass_nv: Optional[str] = None
+    sdt_nv: Optional[str] = None
+    dia_chi: Optional[str] = None
+    email_nv: Optional[EmailStr] = None 
+    chuc_vu: Optional[Literal["admin", "thu-ngan", "nhap-hang", "nhan-vien"]] = None
+    class Config:
+        orm_mode = True

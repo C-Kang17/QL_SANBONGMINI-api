@@ -10,7 +10,7 @@ class DistributorRegister (BaseModel):
     class Config:
         orm_mode = True
 
-class DistributorRegisterResponse(BaseModel):
+class DistributorResponse(BaseModel):
     ma_npp: Optional[str] = None
     ma_nv: Optional[str] = None
     ten_npp: Optional[str] = None
@@ -18,4 +18,12 @@ class DistributorRegisterResponse(BaseModel):
     sdt_npp: Optional[str] = None
     email_npp: Optional[str] = None
 
-    
+
+class DistributorEditRequest (BaseModel):
+    ma_nv: Optional[str] = None
+    ten_npp: Optional[str] = None
+    dc_npp: Optional[str] = None
+    sdt_npp: Optional[str] = None 
+    email_npp: Optional[EmailStr] = None
+    class Config:
+        orm_mode = True
