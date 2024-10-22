@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, CHAR,VARCHAR
+from sqlalchemy import Column, String, CHAR,VARCHAR,BLOB
 from db.database import Base
 
 class Staff(Base):
@@ -8,6 +8,6 @@ class Staff(Base):
     ten_nv =   Column(VARCHAR(50))
     pass_nv =  Column(VARCHAR(100))
     sdt_nv =   Column(CHAR(11))
-    dia_chi =  Column(VARCHAR(100))
+    dia_chi =  Column(BLOB)
     email_nv = Column(String(40))
     chuc_vu =  Column(VARCHAR(30))

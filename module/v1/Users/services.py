@@ -41,7 +41,6 @@ def mod_inverse(key: int, m: int) -> int:
             return i
     raise ValueError(f"Modular inverse for key {key} does not exist with mod {m}.")
 
-# Hàm mã hóa Caesar phép nhân
 def encrypt_multiplicative_caesar(plaintext: str, key: int) -> str:
     result = ""
     for char in plaintext:
@@ -50,7 +49,6 @@ def encrypt_multiplicative_caesar(plaintext: str, key: int) -> str:
         result += chr(encrypted_char_code)
     return result
 
-# Hàm giải mã Caesar phép nhân
 def decrypt_multiplicative_caesar(ciphertext: str, key: int) -> str:
     result = ""
     mod_inv = mod_inverse(key, 256)
