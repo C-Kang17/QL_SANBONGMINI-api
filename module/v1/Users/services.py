@@ -57,3 +57,71 @@ def decrypt_multiplicative_caesar(ciphertext: str, key: int) -> str:
         decrypted_char_code = (char_code * mod_inv) % 256
         result += chr(decrypted_char_code)
     return result
+
+# import cx_Oracle
+# import face_recognition
+# import numpy as np
+
+# def save_face_encoding_to_oracle(user_id, face_image_path):
+#     # Load hình ảnh và tạo face encoding
+#     image = face_recognition.load_image_file(face_image_path)
+#     face_encodings = face_recognition.face_encodings(image)
+
+#     if len(face_encodings) > 0:
+#         face_encoding = face_encodings[0]
+        
+#         # Kết nối đến Oracle
+#         connection = cx_Oracle.connect("QL_SANBONGMINI", "123", "localhost:1521/orcl2")
+#         cursor = connection.cursor()
+
+#         # Chuyển đổi face_encoding thành dạng BLOB
+#         face_encoding_blob = face_encoding.tobytes()
+
+#         # Lưu dữ liệu vào bảng KHACH_HANG
+#         cursor.execute("""
+#             INSERT INTO KHACH_HANG (MA_KH, FACE_ENCODING) 
+#             VALUES (:user_id, :face_encoding_blob)""",
+#             user_id=user_id, 
+#             face_encoding_blob=face_encoding_blob
+#         )
+
+#         # Commit và đóng kết nối
+#         connection.commit()
+#         cursor.close()
+#         connection.close()
+#     else:
+#         print("No face found in the image.")
+
+
+# def login_with_face_oracle(user_id, face_image_path):
+#     # Load hình ảnh và tạo face encoding từ ảnh đăng nhập
+#     image = face_recognition.load_image_file(face_image_path)
+#     face_encodings = face_recognition.face_encodings(image)
+
+#     if len(face_encodings) > 0:
+#         login_face_encoding = face_encodings[0]
+
+#         # Kết nối đến Oracle
+#         connection = cx_Oracle.connect("QL_SANBONGMINI", "123", "localhost:1521/orcl2")
+#         cursor = connection.cursor()
+
+#         # Lấy face_encoding từ cơ sở dữ liệu
+#         cursor.execute("""
+#             SELECT FACE_ENCODING FROM KHACH_HANG WHERE MA_KH = :user_id
+#         """, user_id=user_id)
+
+#         # Chuyển đổi dữ liệu BLOB về dạng numpy array để so sánh
+#         stored_face_encoding_blob = cursor.fetchone()[0]
+#         stored_face_encoding = np.frombuffer(stored_face_encoding_blob, dtype=np.float64)
+
+#         # So sánh khuôn mặt
+#         results = face_recognition.compare_faces([stored_face_encoding], login_face_encoding)
+        
+#         cursor.close()
+#         connection.close()
+        
+#         return results[0]  # True nếu khớp, False nếu không khớp
+#     else:
+#         print("No face found in the login image.")
+#         return False
+

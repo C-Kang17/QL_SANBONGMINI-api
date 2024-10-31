@@ -11,6 +11,7 @@ router = APIRouter(
     tags=["staffs"],
 )
 
+
 @router.get("/all", response_model=list[schemas.StaffResponse])
 def get_all_staff(db: Session = Depends(get_db)):
     staffs = db.query(models.Staff).all()

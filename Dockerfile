@@ -29,7 +29,8 @@ COPY . /app
 
 # Install Python dependencies
 # RUN pip install --no-cache-dir fastapi sqlalchemy pydantic uvicorn cx_Oracle
-RUN pip install --no-cache-dir -r requirements.txt
+# RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install -r requirements.txt
 
 
 # Set environment variables for Oracle Instant Client
