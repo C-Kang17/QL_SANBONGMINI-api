@@ -18,7 +18,9 @@ def get_all_user(db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Users no exist")
     return users
 
-@router.post("/register", response_model=schemas.UserResponse)
+@router.post("/register", response_model=schemas.UserResponse, responses={
+                200: {"description": "Create user success"},
+                })
 def register_user(user: schemas.UserRegister, db: Session = Depends(get_db)):
     ma_kh = services.generate_ma_kh()
     db_user = db.query(models.User).filter(models.User.ma_kh == ma_kh).first()
