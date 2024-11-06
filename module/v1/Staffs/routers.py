@@ -25,16 +25,19 @@ def register_staff(staff: schemas.StaffRegister, db: Session = Depends(get_db)):
     db_staff = db.query(models.Staff).filter(models.Staff.ma_nv == ma_nv).first()
     if db_staff:
         raise HTTPException(status_code=400, detail="Staff already registered")
-    encrypt_email=encrypt_caesar(staff.email_nv, key)
+    #email
     services.validate_email_format(staff.email_nv)
+    encrypt_email=encrypt_caesar(staff.email_nv, key)
     db_staff = services.check_existing_email(db, staff.email_nv)
     if db_staff:
         raise HTTPException(status_code=400, detail="Email already registered")
+    #pass
     services.check_password_length(staff.pass_nv)
     encrypt_pass = services.encrypt_multiplicative_caesar(staff.pass_nv, key)
 
     #DES address
     encrypt_des_address = encrypt_des(staff.dia_chi,key_des)
+    
     db_staff = models.Staff(
         ma_nv=ma_nv,
         ten_nv= staff.ten_nv,

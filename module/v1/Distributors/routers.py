@@ -29,19 +29,21 @@ def create_distributor(distributor: schemas.DistributorRegister, db: Session = D
     db_distributor = db.query(models.Distributor).filter(models.Distributor.ma_npp == ma_npp).first()
     if db_distributor:
         raise HTTPException(status_code=400, detail="distributor already registered")
-    encrypt_email=encrypt_caesar(distributor.email_npp, key)
+    #email
     services.validate_email_format(distributor.email_npp)
+    encrypt_email=encrypt_caesar(distributor.email_npp, key)
     db_distributor = services.check_existing_email(db, encrypt_email)
     if db_distributor:
         raise HTTPException(status_code=400, detail="Email distributor already registered")
-    encrypt_name = encrypt_caesar(distributor.ten_npp,key)
+    #DES address
     encrypt_location  = encrypt_des(distributor.dc_npp, key_des)
+    #sdt
     encrypt_phone = encrypt_caesar(distributor.sdt_npp, key)
     
     db_distributor = models.Distributor(
         ma_npp = ma_npp,
         ma_nv = distributor.ma_nv,
-        ten_npp = encrypt_name,
+        ten_npp = distributor.ten_npp,
         dc_npp = encrypt_location,
         sdt_npp = encrypt_phone,
         email_npp = encrypt_email

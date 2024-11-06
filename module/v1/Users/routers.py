@@ -24,22 +24,23 @@ def register_user(user: schemas.UserRegister, db: Session = Depends(get_db)):
     db_user = db.query(models.User).filter(models.User.ma_kh == ma_kh).first()
     if db_user:
         raise HTTPException(status_code=400, detail="User already registered")
-    encrypt_email=encrypt_caesar(user.email_kh, key)
+    #email 
     services.validate_email_format(user.email_kh)
+    encrypt_email=encrypt_caesar(user.email_kh, key)
     db_user = services.check_existing_email(db, encrypt_email)
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
-    
+    #pass bằng ứng dụng
     services.check_password_length(user.pass_kh)
     encrypt_pass = services.encrypt_multiplicative_caesar(user.pass_kh, key)
-    #DES
-    encrypt_des_name = encrypt_des(user.ten_kh, key_des)
+    #DES sdt
+    encrypt_des_phone = encrypt_des(user.sdt_kh, key_des)
 
     db_user = models.User(
         ma_kh=ma_kh,
         pass_kh= encrypt_pass,
-        ten_kh=encrypt_des_name,
-        sdt_kh=user.sdt_kh,
+        ten_kh=user.ten_kh,
+        sdt_kh=encrypt_des_phone,
         email_kh=encrypt_email
     )
     db.add(db_user)
@@ -55,6 +56,7 @@ def login(user: schemas.UserLogin, db: Session = Depends(get_db)):
     db_user = db.query(models.User).filter(models.User.email_kh == en_email).first()
     if db_user is None:
         raise HTTPException(status_code=404, detail="Invalid username or password")
+    #pass
     services.check_password_length(user.pass_kh)
     en_pass = services.encrypt_multiplicative_caesar(user.pass_kh, key)
     if not services.verify_password(en_pass, db_user.pass_kh):
@@ -70,16 +72,13 @@ def edit_user(ma_kh: str, user: schemas.UserEditResquest, db: Session = Depends(
     data = user.model_dump(exclude_none=True)
     if not any(getattr(db_user, k) != value for k, value in data.items()):
         raise HTTPException(status_code=304, detail="No modifications")
-    
+    #Pass
     if data.get("pass_kh"):
         encrypt_password  = encrypt_caesar(data["pass_kh"], key)
         data["pass_kh"] = encrypt_password
-    #DES
-    if data.get("ten_kh"):
-        encrypt_name = encrypt_des(data["ten_kh"], key)
-        data["ten_kh"] = encrypt_name
+    #DES phone
     if data.get("sdt_kh"):
-        encrypt_phone=encrypt_caesar(data["sdt_kh"], key)
+        encrypt_phone = encrypt_des(data["sdt_kh"], key)
         data["sdt_kh"] = encrypt_phone
 
     for k, value in data.items():
