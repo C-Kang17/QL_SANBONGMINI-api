@@ -23,7 +23,7 @@ class UserLogin(BaseModel):
 class UserLoginResponse(BaseModel):
     email_kh: Optional[str] = None
 
-class UserEditResquest(BaseModel):
+class UserEditRequest(BaseModel):
     pass_kh: Optional[str] = None
     ten_kh: Optional[str] = None
     sdt_kh: Optional[str] = None

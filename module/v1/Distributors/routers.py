@@ -3,14 +3,20 @@ from sqlalchemy.orm import Session
 from db.database import get_db
 from module.v1.Distributors import schemas, models, services
 from module.v1.Staffs import models as models_staff
+from utils.callfunction import encrypt_caesar, encrypt_des
 from db.config import *
-from module.v1.Distributors.config import *
-from utils.callfunction import *
 
 router = APIRouter(
-    prefix="/mudule/v1/distributor",
+    prefix="/module/v1/distributor",
     tags=["distributors"],
 )
+
+# Utility function to get distributor by `ma_npp`
+def get_distributor_by_ma_npp(ma_npp: str, db: Session):
+    db_distributor = db.query(models.Distributor).filter(models.Distributor.ma_npp == ma_npp).first()
+    if db_distributor is None:
+        raise HTTPException(status_code=404, detail="Distributor not found")
+    return db_distributor
 
 @router.get("/all", response_model=list[schemas.DistributorResponse])
 def get_all_distributors(db: Session = Depends(get_db)):
@@ -19,34 +25,36 @@ def get_all_distributors(db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="No distributors found")
     return distributors
 
-@router.post("/register", response_model=schemas.DistributorResponse)
+@router.post("/register", response_model=schemas.DistributorResponse, status_code=200)
 def create_distributor(distributor: schemas.DistributorRegister, db: Session = Depends(get_db)):
+    # Validate staff existence
     db_staff = db.query(models_staff.Staff).filter(models_staff.Staff.ma_nv == distributor.ma_nv).first()
-    if db_staff is None:
+    if not db_staff:
         raise HTTPException(status_code=404, detail="Invalid 'Mã Nhân viên'")
-    
+
+    # Generate unique `ma_npp`
     ma_npp = services.generate_ma_npp()
-    db_distributor = db.query(models.Distributor).filter(models.Distributor.ma_npp == ma_npp).first()
-    if db_distributor:
-        raise HTTPException(status_code=400, detail="distributor already registered")
-    #email
+    if db.query(models.Distributor).filter(models.Distributor.ma_npp == ma_npp).first():
+        raise HTTPException(status_code=400, detail="Distributor already registered")
+
+    # Validate and encrypt email
     services.validate_email_format(distributor.email_npp)
-    encrypt_email=encrypt_caesar(distributor.email_npp, key)
-    db_distributor = services.check_existing_email(db, encrypt_email)
-    if db_distributor:
+    encrypt_email = encrypt_caesar(distributor.email_npp, key)
+    if services.check_existing_email(db, encrypt_email):
         raise HTTPException(status_code=400, detail="Email distributor already registered")
-    #DES address
-    encrypt_location  = encrypt_des(distributor.dc_npp, key_des)
-    #sdt
+
+    # Encrypt other fields
+    encrypt_location = encrypt_des(distributor.dc_npp, key_des)
     encrypt_phone = encrypt_caesar(distributor.sdt_npp, key)
-    
+
+    # Create new distributor entry
     db_distributor = models.Distributor(
-        ma_npp = ma_npp,
-        ma_nv = distributor.ma_nv,
-        ten_npp = distributor.ten_npp,
-        dc_npp = encrypt_location,
-        sdt_npp = encrypt_phone,
-        email_npp = encrypt_email
+        ma_npp=ma_npp,
+        ma_nv=distributor.ma_nv,
+        ten_npp=distributor.ten_npp,
+        dc_npp=encrypt_location,
+        sdt_npp=encrypt_phone,
+        email_npp=encrypt_email
     )
     db.add(db_distributor)
     db.commit()
@@ -55,25 +63,24 @@ def create_distributor(distributor: schemas.DistributorRegister, db: Session = D
 
 @router.put("/edit/{ma_npp}", response_model=schemas.DistributorResponse)
 def edit_distributor(ma_npp: str, distributor: schemas.DistributorEditRequest, db: Session = Depends(get_db)):
-    db_distributor = db.query(models.Distributor).filter(models.Distributor.ma_npp == ma_npp).first()
-    if db_distributor is None:
-        raise HTTPException(status_code=404, detail="Distributor not found")
+    db_distributor = get_distributor_by_ma_npp(ma_npp, db)
     data = distributor.model_dump(exclude_none=True)
-    if not any(getattr(db_distributor, k) != value for k, value in data.items()):
-        raise HTTPException(status_code=304, detail="No modifications")
-    
-    if data.get("dc_npp"):
-        encrypt_location  = encrypt_des(distributor.dc_npp, key_des)
-        data["dc_npp"] = encrypt_location
-    if data.get("sdt_npp"):
-        encrypt_phone = encrypt_caesar(data["sdt_npp"], key)
-        data["sdt_npp"] = encrypt_phone
-    if data.get("email_npp"):
-        encrypt_email=encrypt_caesar(data["email_npp"], key)
-        data["email_npp"] = encrypt_email
 
-    for k, value in data.items():
-        setattr(db_distributor, k, value)
+    # Check if there are any changes
+    if not any(getattr(db_distributor, k) != v for k, v in data.items()):
+        raise HTTPException(status_code=304, detail="No modifications")
+
+    # Encrypt fields if present in data
+    if data.get("dc_npp"):
+        data["dc_npp"] = encrypt_des(data["dc_npp"], key_des)
+    if data.get("sdt_npp"):
+        data["sdt_npp"] = encrypt_caesar(data["sdt_npp"], key)
+    if data.get("email_npp"):
+        data["email_npp"] = encrypt_caesar(data["email_npp"], key)
+
+    # Update fields in db_distributor
+    for k, v in data.items():
+        setattr(db_distributor, k, v)
 
     db.commit()
     db.refresh(db_distributor)
@@ -81,11 +88,7 @@ def edit_distributor(ma_npp: str, distributor: schemas.DistributorEditRequest, d
 
 @router.delete("/delete/{ma_npp}", response_model=dict)
 def delete_distributor(ma_npp: str, db: Session = Depends(get_db)):
-    db_distributor = db.query(models.Distributor).filter(models.Distributor.ma_npp == ma_npp).first()
-    if db_distributor is None:
-        raise HTTPException(status_code=404, detail="Distributor not found")
-
+    db_distributor = get_distributor_by_ma_npp(ma_npp, db)
     db.delete(db_distributor)
     db.commit()
-    
     return {"detail": "Distributor deleted successfully"}
