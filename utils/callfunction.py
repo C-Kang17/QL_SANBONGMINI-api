@@ -57,3 +57,31 @@ def decrypt_des(encrypted_text: str, prikey: str) -> str:
         return decrypted_text
     except cx_Oracle.DatabaseError as e:
         raise HTTPException(status_code=500, detail="Database error: " + str(e))
+
+def encrypt_rsa(plaintext: str, prikey: str) -> str:
+    try:
+        dsn = cx_Oracle.makedsn(DB_HOST, DB_PORT, service_name=DB_SID)
+        connection = cx_Oracle.connect(user=DB_USER, password=DB_PASS, dsn=dsn)
+        cursor = connection.cursor()
+
+        encrypted_text = cursor.callfunc("DES.encrypt", cx_Oracle.STRING, [plaintext, prikey])
+
+        cursor.close()
+        connection.close()
+        return encrypted_text
+    except cx_Oracle.DatabaseError as e:
+        raise HTTPException(status_code=500, detail="Database error: " + str(e))
+    
+def decrypt_rsa(encrypted_text: str, prikey: str) -> str:
+    try:
+        dsn = cx_Oracle.makedsn(DB_HOST, DB_PORT, service_name=DB_SID)
+        connection = cx_Oracle.connect(user=DB_USER, password=DB_PASS, dsn=dsn)
+        cursor = connection.cursor()
+
+        decrypted_text = cursor.callfunc("DES.decrypt", cx_Oracle.STRING, [encrypted_text, prikey])
+
+        cursor.close()
+        connection.close()
+        return decrypted_text
+    except cx_Oracle.DatabaseError as e:
+        raise HTTPException(status_code=500, detail="Database error: " + str(e))

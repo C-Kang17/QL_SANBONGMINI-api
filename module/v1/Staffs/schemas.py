@@ -25,6 +25,8 @@ class StaffLogin(BaseModel):
     pass_nv: str
 
 class StaffLoginResponse(BaseModel):
+    ma_nv: str
+    ten_nv: str
     chuc_vu: str
 
 class StaffEditRequest(BaseModel):

@@ -55,6 +55,8 @@ def register_user(user: schemas.UserRegister, db: Session = Depends(get_db)):
     db.refresh(db_user)
     return db_user
 
+
+
 @router.post("/login", response_model=schemas.UserLoginResponse, status_code=201)
 def login(user: schemas.UserLogin, db: Session = Depends(get_db)):
     en_email = encrypt_caesar(user.email_kh, key)
@@ -68,7 +70,7 @@ def login(user: schemas.UserLogin, db: Session = Depends(get_db)):
     if not services.verify_password(en_pass, db_user.pass_kh):
         raise HTTPException(status_code=401, detail="Incorrect password")
 
-    return {"email_kh": user.email_kh, "message": "Login successful"}
+    return db_user
 
 @router.put("/edit/{ma_kh}", response_model=schemas.UserResponse)
 def edit_user(ma_kh: str, user: schemas.UserEditRequest, db: Session = Depends(get_db)):
@@ -85,8 +87,8 @@ def edit_user(ma_kh: str, user: schemas.UserEditRequest, db: Session = Depends(g
     if not any(getattr(db_user, k) != v for k, v in data.items()):
         raise HTTPException(status_code=304, detail="No modifications")
 
-    for key, value in data.items():
-        setattr(db_user, key, value)
+    for key_chk, value in data.items():
+        setattr(db_user, key_chk, value)
 
     db.commit()
     db.refresh(db_user)

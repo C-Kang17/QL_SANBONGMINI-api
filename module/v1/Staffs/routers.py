@@ -24,6 +24,7 @@ def get_all_staff(db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="No staff found")
     return staffs
 
+
 @router.post("/register", response_model=schemas.StaffResponse, status_code=200)
 def register_staff(staff: schemas.StaffRegister, db: Session = Depends(get_db)):
     ma_nv = services.generate_ma_nv()
@@ -33,7 +34,7 @@ def register_staff(staff: schemas.StaffRegister, db: Session = Depends(get_db)):
     # Validate and encrypt email
     services.validate_email_format(staff.email_nv)
     encrypt_email = encrypt_caesar(staff.email_nv, key)
-    if services.check_existing_email(db, staff.email_nv):
+    if services.check_existing_email(db, encrypt_email):
         raise HTTPException(status_code=400, detail="Email already registered")
 
     # Validate and encrypt password
@@ -68,7 +69,7 @@ def login(staff: schemas.StaffLogin, db: Session = Depends(get_db)):
     if not services.verify_password(en_pass, db_staff.pass_nv):
         raise HTTPException(status_code=401, detail="Password is incorrect!")
 
-    return schemas.StaffLoginResponse(chuc_vu=db_staff.chuc_vu)
+    return schemas.StaffLoginResponse(ma_nv=db_staff.ma_nv,ten_nv=db_staff.ten_nv,chuc_vu=db_staff.chuc_vu)
 
 @router.put("/edit/{ma_nv}", response_model=schemas.StaffResponse)
 def edit_staff(ma_nv: str, staff: schemas.StaffEditRequest, db: Session = Depends(get_db)):
