@@ -61,6 +61,7 @@ def register_user(user: schemas.UserRegister, db: Session = Depends(get_db)):
 def login(user: schemas.UserLogin, db: Session = Depends(get_db)):
     en_email = encrypt_caesar(user.email_kh, key)
     db_user = db.query(models.User).filter(models.User.email_kh == en_email).first()
+    print(">>>>>>>>>>>>>>>>>>>",db_user)
     if not db_user:
         raise HTTPException(status_code=404, detail="Invalid username or password")
 
@@ -69,8 +70,14 @@ def login(user: schemas.UserLogin, db: Session = Depends(get_db)):
     en_pass = services.encrypt_multiplicative_caesar(user.pass_kh, key)
     if not services.verify_password(en_pass, db_user.pass_kh):
         raise HTTPException(status_code=401, detail="Incorrect password")
-
-    return db_user
+    response = {
+        "ma_kh": db_user.ma_kh,
+        "ten_kh": db_user.ten_kh,
+        "email_kh": db_user.email_kh,
+        "sdt_kh": db_user.sdt_kh 
+    }
+    print(response)
+    return response
 
 @router.put("/edit/{ma_kh}", response_model=schemas.UserResponse)
 def edit_user(ma_kh: str, user: schemas.UserEditRequest, db: Session = Depends(get_db)):

@@ -21,7 +21,10 @@ class UserLogin(BaseModel):
     pass_kh: str
 
 class UserLoginResponse(BaseModel):
-    email_kh: Optional[str] = None
+    ma_kh: str
+    ten_kh: str
+    email_kh: str
+    sdt_kh: str
 
 class UserEditRequest(BaseModel):
     pass_kh: Optional[str] = None
