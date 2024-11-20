@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 from db.database import get_db
-from utils.callfunction import encrypt_caesar, encrypt_des
+from utils import callfunction as call_function_services
 from module.v1.Users import schemas, models, services
 from db.config import *
 
@@ -31,16 +31,16 @@ def register_user(user: schemas.UserRegister, db: Session = Depends(get_db)):
 
     # Validate and encrypt email
     services.validate_email_format(user.email_kh)
-    encrypt_email = encrypt_caesar(user.email_kh, key)
+    encrypt_email = call_function_services.encrypt_rsa(user.email_kh, public_key_rsa)
     if services.check_existing_email(db, encrypt_email):
         raise HTTPException(status_code=400, detail="Email already registered")
 
     # Validate and encrypt password
     services.check_password_length(user.pass_kh)
-    encrypt_pass = services.encrypt_multiplicative_caesar(user.pass_kh, key)
-
+    encrypt_pass = call_function_services.encrypt_lai(user.pass_kh, public_key_rsa, key_des)
+    # encrypt_pass = call_function_services.encrypt_caesar(user.pass_kh, key)
     # Encrypt phone number
-    encrypt_phone = encrypt_des(user.sdt_kh, key_des)
+    encrypt_phone = call_function_services.encrypt_des(user.sdt_kh, key_des)
 
     # Create new user entry
     db_user = models.User(
@@ -59,15 +59,14 @@ def register_user(user: schemas.UserRegister, db: Session = Depends(get_db)):
 
 @router.post("/login", response_model=schemas.UserLoginResponse, status_code=201)
 def login(user: schemas.UserLogin, db: Session = Depends(get_db)):
-    en_email = encrypt_caesar(user.email_kh, key)
+    en_email = call_function_services.encrypt_rsa(user.email_kh, public_key_rsa)
     db_user = db.query(models.User).filter(models.User.email_kh == en_email).first()
-    print(">>>>>>>>>>>>>>>>>>>",db_user)
     if not db_user:
         raise HTTPException(status_code=404, detail="Invalid username or password")
 
     # Validate and check password
     services.check_password_length(user.pass_kh)
-    en_pass = services.encrypt_multiplicative_caesar(user.pass_kh, key)
+    en_pass = call_function_services.encrypt_lai(user.pass_kh, public_key_rsa, key_des)
     if not services.verify_password(en_pass, db_user.pass_kh):
         raise HTTPException(status_code=401, detail="Incorrect password")
     response = {
@@ -86,9 +85,9 @@ def edit_user(ma_kh: str, user: schemas.UserEditRequest, db: Session = Depends(g
 
     # Encrypt and update fields if changed
     if data.get("pass_kh"):
-        data["pass_kh"] = encrypt_caesar(data["pass_kh"], key)
+        data["pass_kh"] = call_function_services.encrypt_lai(data["pass_kh"], public_key_rsa, key_des)
     if data.get("sdt_kh"):
-        data["sdt_kh"] = encrypt_des(data["sdt_kh"], key_des)
+        data["sdt_kh"] = call_function_services.encrypt_des(data["sdt_kh"], key_des)
 
     # Update only if there are changes
     if not any(getattr(db_user, k) != v for k, v in data.items()):

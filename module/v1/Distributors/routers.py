@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from db.database import get_db
 from module.v1.Distributors import schemas, models, services
 from module.v1.Staffs import models as models_staff
-from utils.callfunction import encrypt_caesar, encrypt_des
+from utils import callfunction as call_function_services
 from db.config import *
 
 router = APIRouter(
@@ -39,13 +39,13 @@ def create_distributor(distributor: schemas.DistributorRegister, db: Session = D
 
     # Validate and encrypt email
     services.validate_email_format(distributor.email_npp)
-    encrypt_email = encrypt_caesar(distributor.email_npp, key)
+    encrypt_email = call_function_services.encrypt_rsa(distributor.email_npp, public_key_rsa)
     if services.check_existing_email(db, encrypt_email):
         raise HTTPException(status_code=400, detail="Email distributor already registered")
 
     # Encrypt other fields
-    encrypt_location = encrypt_des(distributor.dc_npp, key_des)
-    encrypt_phone = encrypt_caesar(distributor.sdt_npp, key)
+    encrypt_location = call_function_services.encrypt_des(distributor.dc_npp, key_des)
+    encrypt_phone = call_function_services.encrypt_caesar(distributor.sdt_npp, key)
 
     # Create new distributor entry
     db_distributor = models.Distributor(
@@ -72,11 +72,11 @@ def edit_distributor(ma_npp: str, distributor: schemas.DistributorEditRequest, d
 
     # Encrypt fields if present in data
     if data.get("dc_npp"):
-        data["dc_npp"] = encrypt_des(data["dc_npp"], key_des)
+        data["dc_npp"] = call_function_services.encrypt_des(data["dc_npp"], key_des)
     if data.get("sdt_npp"):
-        data["sdt_npp"] = encrypt_caesar(data["sdt_npp"], key)
+        data["sdt_npp"] = call_function_services.encrypt_caesar(data["sdt_npp"], key)
     if data.get("email_npp"):
-        data["email_npp"] = encrypt_caesar(data["email_npp"], key)
+        data["email_npp"] = call_function_services.encrypt_rsa(data["email_npp"], public_key_rsa)
 
     # Update fields in db_distributor
     for k, v in data.items():

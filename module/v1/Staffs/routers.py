@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 from db.database import get_db
-from utils.callfunction import encrypt_caesar, encrypt_des
+from utils import callfunction as call_function_services
 from module.v1.Staffs import schemas, models, services
 from db.config import *
 
@@ -33,16 +33,16 @@ def register_staff(staff: schemas.StaffRegister, db: Session = Depends(get_db)):
 
     # Validate and encrypt email
     services.validate_email_format(staff.email_nv)
-    encrypt_email = encrypt_caesar(staff.email_nv, key)
+    encrypt_email = call_function_services.encrypt_rsa(staff.email_nv, public_key_rsa)
     if services.check_existing_email(db, encrypt_email):
         raise HTTPException(status_code=400, detail="Email already registered")
 
     # Validate and encrypt password
     services.check_password_length(staff.pass_nv)
-    encrypt_pass = services.encrypt_multiplicative_caesar(staff.pass_nv, key)
+    encrypt_pass = call_function_services.encrypt_lai(staff.pass_nv, public_key_rsa, key_des)
 
     # Encrypt address
-    encrypt_des_address = encrypt_des(staff.dia_chi, key_des)
+    encrypt_des_address = call_function_services.encrypt_des(staff.dia_chi, key_des)
 
     # Create new staff entry
     db_staff = models.Staff(
@@ -65,7 +65,7 @@ def login(staff: schemas.StaffLogin, db: Session = Depends(get_db)):
     if not db_staff:
         raise HTTPException(status_code=404, detail="Invalid 'Mã Nhân viên' or password")
 
-    en_pass = services.encrypt_multiplicative_caesar(staff.pass_nv, key)
+    en_pass = call_function_services.encrypt_lai(staff.pass_nv, public_key_rsa, key_des)
     if not services.verify_password(en_pass, db_staff.pass_nv):
         raise HTTPException(status_code=401, detail="Password is incorrect!")
 
@@ -81,12 +81,12 @@ def edit_staff(ma_nv: str, staff: schemas.StaffEditRequest, db: Session = Depend
         raise HTTPException(status_code=304, detail="No modifications")
 
     # Encrypt fields if present in data
-    if data.get("pass_kh"):
-        data["pass_nv"] = services.encrypt_multiplicative_caesar(data["pass_nv"], key)
+    if data.get("pass_nv"):
+        data["pass_nv"] = call_function_services.encrypt_lai(data["pass_nv"], public_key_rsa, key_des)
     if data.get("email_nv"):
-        data["email_nv"] = encrypt_caesar(data["email_nv"], key)
+        data["email_nv"] = call_function_services.encrypt_rsa(data["email_nv"], public_key_rsa)
     if data.get("dia_chi"):
-        data["dia_chi"] = encrypt_des(data["dia_chi"], key_des)
+        data["dia_chi"] = call_function_services.encrypt_des(data["dia_chi"], key_des)
 
     # Update fields in db_staff
     for k, v in data.items():

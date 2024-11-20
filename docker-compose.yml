@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .  # Thư mục chứa Dockerfile
+      dockerfile: Dockerfile  # Tên Dockerfile
+    image: doan-api
+    volumes:
+      - .:/app  # Mount code từ thư mục hiện tại vào container
+      - /app/__pycache__/  # Ngăn cache Python gây lỗi
+    ports:
+      - "8000:8000"  # Map port từ container ra ngoài
+    environment:
+      - LD_LIBRARY_PATH=/opt/oracle  # Biến môi trường cho Oracle Instant Client
+      - PYTHONDONTWRITEBYTECODE=1  # Ngăn Python ghi file .pyc
+      - PYTHONUNBUFFERED=1         # Không buffer output
+      - DB_HOST=host.docker.internal  # Sử dụng để kết nối tới máy host từ container
+    stdin_open: true  # Giữ terminal mở
+    tty: true  # Cho phép gõ lệnh trong container

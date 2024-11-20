@@ -6,8 +6,8 @@ class Staff(Base):
 
     ma_nv = Column(CHAR(10), primary_key=True, index=True)
     ten_nv =   Column(NVARCHAR(100))
-    pass_nv =  Column(NVARCHAR(150))
+    pass_nv =  Column(NVARCHAR(1000))
     sdt_nv =   Column(NVARCHAR(50))
     dia_chi =  Column(BLOB)
-    email_nv = Column(NVARCHAR(100))
+    email_nv = Column(NVARCHAR(200))
     chuc_vu =  Column(NVARCHAR(15))
