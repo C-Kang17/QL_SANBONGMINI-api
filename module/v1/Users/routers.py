@@ -79,10 +79,12 @@ def login(user: schemas.UserLogin, db: Session = Depends(get_db)):
     en_pass = call_function_services.encrypt_lai(user.pass_kh, public_key_rsa, key_des)
     if not services.verify_password(en_pass, db_user.pass_kh):
         raise HTTPException(status_code=401, detail="Incorrect password")
+
+    decrypt_email = call_function_services.decrypt_rsa(db_user.email_kh, private_key_rsa)
     response = {
         "ma_kh": db_user.ma_kh,
         "ten_kh": db_user.ten_kh,
-        "email_kh": db_user.email_kh,
+        "email_kh": decrypt_email,
         "sdt_kh": db_user.sdt_kh 
     }
     print(response)
