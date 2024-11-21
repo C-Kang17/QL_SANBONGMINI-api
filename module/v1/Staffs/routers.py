@@ -22,7 +22,19 @@ def get_all_staff(db: Session = Depends(get_db)):
     staffs = db.query(models.Staff).all()
     if not staffs:
         raise HTTPException(status_code=404, detail="No staff found")
-    return staffs
+    result = [
+        schemas.StaffResponse(
+            ma_nv=staff.ma_nv,
+            ten_nv=staff.ten_nv,
+            email_nv=call_function_services.decrypt_rsa(staff.email_nv, private_key_rsa),
+            sdt_nv=staff.sdt_nv,
+            dia_chi=staff.dia_chi,
+            chuc_vu=staff.chuc_vu,
+        )
+        for staff in staffs
+    ]
+    
+    return result
 
 
 @router.post("/register", response_model=schemas.StaffResponse, status_code=200)

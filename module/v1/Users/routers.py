@@ -21,7 +21,17 @@ def get_all_users(db: Session = Depends(get_db)):
     users = db.query(models.User).all()
     if not users:
         raise HTTPException(status_code=404, detail="No users found")
-    return users
+    result = [
+        schemas.UserResponse(
+            ma_kh=user.ma_kh,
+            ten_kh=user.ten_kh,
+            email_kh=call_function_services.decrypt_rsa(user.email_kh, private_key_rsa),
+            sdt_kh=user.sdt_kh,
+        )
+        for user in users
+    ]
+    
+    return result
 
 @router.post("/register", response_model=schemas.UserResponse, status_code=200)
 def register_user(user: schemas.UserRegister, db: Session = Depends(get_db)):

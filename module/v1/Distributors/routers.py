@@ -21,9 +21,25 @@ def get_distributor_by_ma_npp(ma_npp: str, db: Session):
 @router.get("/all", response_model=list[schemas.DistributorResponse])
 def get_all_distributors(db: Session = Depends(get_db)):
     distributors = db.query(models.Distributor).all()
+    
     if not distributors:
         raise HTTPException(status_code=404, detail="No distributors found")
-    return distributors
+    
+    # Chuẩn bị dữ liệu đã giải mã
+    result = [
+        schemas.DistributorResponse(
+            ma_npp=distributor.ma_npp,
+            ma_nv=distributor.ma_nv,
+            ten_npp=distributor.ten_npp,
+            email_npp=call_function_services.decrypt_rsa(distributor.email_npp, private_key_rsa),
+            sdt_npp=distributor.sdt_npp,
+            dc_npp=distributor.dc_npp,
+            # Thêm các trường khác nếu cần
+        )
+        for distributor in distributors
+    ]
+    
+    return result
 
 @router.post("/register", response_model=schemas.DistributorResponse, status_code=200)
 def create_distributor(distributor: schemas.DistributorRegister, db: Session = Depends(get_db)):
