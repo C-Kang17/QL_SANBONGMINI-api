@@ -6,7 +6,7 @@ from module.v1.Staffs.routers import router as staff_router
 from module.v1.Distributors.routers import router as distributor_router
 from module.v1.Order.routers import router as order_router
 from module.v1.Order_items.routers import router as order_item_router
-from module.v1.Loaisan.routers import router as loaisan_router
+from module.v1.Loaisan.routers import router as loai_san_router
 from module.v1.San.routers import router as san_router
 from module.v1.OrderCommodities.routers import router as order_commodities_router
 from module.v1.OrderCommoditiesDetail.routers import router as order_commodities_detail_router
@@ -33,7 +33,7 @@ app.include_router(staff_router, prefix="/staffs")
 app.include_router(distributor_router, prefix="/distributors")
 app.include_router(order_router, prefix="/orders")
 app.include_router(order_item_router, prefix="/order-items")
-app.include_router(loaisan_router, prefix="/loaisan")
+app.include_router(loai_san_router, prefix="/loaisan")
 app.include_router(san_router, prefix="/san")
 app.include_router(order_commodities_router, prefix="/order_commodity")
 app.include_router(order_commodities_detail_router, prefix="/order_commodity_detail")
