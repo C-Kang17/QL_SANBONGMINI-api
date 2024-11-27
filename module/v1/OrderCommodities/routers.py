@@ -8,8 +8,8 @@ from typing import List
 from datetime import datetime
 
 router = APIRouter(
-    prefix="/module/v1/OrderCommodity",
-    tags=["OrderCommodities"],
+    prefix="/module/v1/order_commodity",
+    tags=["order_commodities"],
 )
 
 def get_order_commodity_by_ma_pn(ma_pn: str, db: Session):
