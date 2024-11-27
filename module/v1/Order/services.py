@@ -1,7 +1,3 @@
-import re
-from fastapi import HTTPException
-from sqlalchemy.orm import Session
-from module.v1.Order import models
 import random
 
 def generate_ma_pds() -> str:

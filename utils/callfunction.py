@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import HTTPException
 from db.config import *
 import cx_Oracle
 # Caesar

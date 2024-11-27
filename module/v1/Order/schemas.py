@@ -1,8 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional
-from datetime import date, timedelta
 
-class OrderRequest (BaseModel):
+class OrderRequest(BaseModel):
     ma_kh: str
     ghi_chu: Optional[str] = None
     class Config:

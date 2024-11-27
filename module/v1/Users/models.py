@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, CHAR, NVARCHAR, BLOB
+from sqlalchemy import Column, CHAR, NVARCHAR
 from db.database import Base
 
 class User(Base):
@@ -9,4 +9,3 @@ class User(Base):
     ten_kh = Column(NVARCHAR(100))
     sdt_kh = Column(NVARCHAR(50))
     email_kh = Column(NVARCHAR(200))
-    # khuon_mat = Column(BLOB)

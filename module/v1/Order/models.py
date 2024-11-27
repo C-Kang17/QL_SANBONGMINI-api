@@ -1,4 +1,4 @@
-from sqlalchemy import Column, CHAR, VARCHAR, NVARCHAR, DATE, Interval
+from sqlalchemy import Column, CHAR, NVARCHAR
 from db.database import Base
 
 class Order(Base):

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, CHAR, NVARCHAR, DATE, TIMESTAMP, Interval
+from sqlalchemy import Column, CHAR, NVARCHAR, DATE, TIMESTAMP, FLOAT
 from db.database import Base
 
 class OrderItem(Base):
@@ -10,3 +10,7 @@ class OrderItem(Base):
     gio_bd = Column(TIMESTAMP, nullable=False)
     gio_kt = Column(TIMESTAMP, nullable=False)
     ghi_chu = Column(NVARCHAR(30))
+    gia_san_tong = Column(FLOAT)
+    hinh_thuc_thanh_toan = Column(NVARCHAR(20))
+    han_muc_thanh_toan = Column(NVARCHAR(10))
+

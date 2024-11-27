@@ -1,8 +1,6 @@
 from datetime import datetime, timedelta
 from typing import Annotated
 from pydantic.functional_validators import AfterValidator
-from fastapi import HTTPException
-
 from .exceptions import ErrorCode as CoreErrorCode
 
 def check_date_format(value: str) -> str:

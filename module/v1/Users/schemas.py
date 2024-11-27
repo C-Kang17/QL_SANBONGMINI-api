@@ -11,7 +11,6 @@ class UserRegister (BaseModel):
 
 class UserResponse(BaseModel):
     ma_kh: Optional[str] = None
-    pass_kh: Optional[str] = None
     ten_kh: Optional[str] = None
     sdt_kh: Optional[str] = None 
     email_kh: Optional[str] = None

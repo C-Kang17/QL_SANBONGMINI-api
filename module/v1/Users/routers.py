@@ -13,14 +13,14 @@ router = APIRouter(
 def get_user_by_ma_kh(ma_kh: str, db: Session):
     db_user = db.query(models.User).filter(models.User.ma_kh == ma_kh).first()
     if db_user is None:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="Khách hàng với mã {ma_kh} không tìm thấy!")
     return db_user
 
 @router.get("/all", response_model=list[schemas.UserResponse])
 def get_all_users(db: Session = Depends(get_db)):
     users = db.query(models.User).all()
     if not users:
-        raise HTTPException(status_code=404, detail="No users found")
+        raise HTTPException(status_code=404, detail="Không tìm thấy khách hàng nào!")
     result = [
         schemas.UserResponse(
             ma_kh=user.ma_kh,
@@ -33,17 +33,33 @@ def get_all_users(db: Session = Depends(get_db)):
     
     return result
 
+@router.get("detail", response_model=schemas.UserResponse)
+def get_detail_users(ma_kh: str, db: Session = Depends(get_db)):
+    user = get_user_by_ma_kh(ma_kh, db)
+    if not user:
+        raise HTTPException(status_code=404, detail="Không tìm thấy khách hàng nào!")
+    result = [
+        schemas.UserResponse(
+            ma_kh=user.ma_kh,
+            ten_kh=user.ten_kh,
+            email_kh=call_function_services.decrypt_rsa(user.email_kh, private_key_rsa),
+            sdt_kh=user.sdt_kh,
+        )
+    ]
+    
+    return result
+
 @router.post("/register", response_model=schemas.UserResponse, status_code=200)
 def register_user(user: schemas.UserRegister, db: Session = Depends(get_db)):
     ma_kh = services.generate_ma_kh()
     if db.query(models.User).filter(models.User.ma_kh == ma_kh).first():
-        raise HTTPException(status_code=400, detail="User already registered")
+        raise HTTPException(status_code=400, detail="Khách hàng đã tồn tại rồi")
 
     # Validate and encrypt email
     services.validate_email_format(user.email_kh)
     encrypt_email = call_function_services.encrypt_rsa(user.email_kh, public_key_rsa)
     if services.check_existing_email(db, encrypt_email):
-        raise HTTPException(status_code=400, detail="Email already registered")
+        raise HTTPException(status_code=400, detail="Email đã đăng ký rồi")
 
     # Validate and encrypt password
     services.check_password_length(user.pass_kh)
@@ -72,13 +88,13 @@ def login(user: schemas.UserLogin, db: Session = Depends(get_db)):
     en_email = call_function_services.encrypt_rsa(user.email_kh, public_key_rsa)
     db_user = db.query(models.User).filter(models.User.email_kh == en_email).first()
     if not db_user:
-        raise HTTPException(status_code=404, detail="Invalid username or password")
+        raise HTTPException(status_code=404, detail="Email hoặc Password không chĩnh xác!")
 
     # Validate and check password
     services.check_password_length(user.pass_kh)
     en_pass = call_function_services.encrypt_lai(user.pass_kh, public_key_rsa, key_des)
     if not services.verify_password(en_pass, db_user.pass_kh):
-        raise HTTPException(status_code=401, detail="Incorrect password")
+        raise HTTPException(status_code=401, detail="Password không đúng!")
 
     decrypt_email = call_function_services.decrypt_rsa(db_user.email_kh, private_key_rsa)
     response = {
@@ -117,4 +133,4 @@ def delete_user(ma_kh: str, db: Session = Depends(get_db)):
     db_user = get_user_by_ma_kh(ma_kh, db)
     db.delete(db_user)
     db.commit()
-    return {"detail": "User deleted successfully"}
+    return {"detail": "Xóa khách hàng thành công"}
