@@ -9,8 +9,8 @@ from datetime import datetime
 from module.v1.Distributors.routers import get_distributor_by_ma_npp
 
 router = APIRouter(
-    prefix="/module/v1/Item",
-    tags=["Items"],
+    prefix="/module/v1/item",
+    tags=["items"],
 )
 
 def get_item_by_ma_mh(ma_mh: str, db: Session):

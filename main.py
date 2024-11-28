@@ -10,6 +10,7 @@ from module.v1.Loaisan.routers import router as loai_san_router
 from module.v1.San.routers import router as san_router
 from module.v1.OrderCommodities.routers import router as order_commodities_router
 from module.v1.OrderCommoditiesDetail.routers import router as order_commodities_detail_router
+from module.v1.Items.routers import router as items_router
 import uvicorn
 app = FastAPI()
 
@@ -37,6 +38,7 @@ app.include_router(loai_san_router, prefix="/loaisan")
 app.include_router(san_router, prefix="/san")
 app.include_router(order_commodities_router, prefix="/order_commodity")
 app.include_router(order_commodities_detail_router, prefix="/order_commodity_detail")
+app.include_router(items_router, prefix="/item")
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
