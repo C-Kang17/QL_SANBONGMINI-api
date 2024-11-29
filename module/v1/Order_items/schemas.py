@@ -9,7 +9,6 @@ class OrderItemRequest(BaseModel):
     gio_bd: datetime
     gio_kt: datetime
     ghi_chu: Optional[str] = None
-    gia_san_tong: float
 
     class Config:
         orm_mode = True
@@ -21,8 +20,7 @@ class Response(BaseModel):
     gio_bd: datetime
     gio_kt: datetime
     ghi_chu: Optional[str] = None
-    gia_san_tong: float
-    
+
 class EditOrderItem(BaseModel):
     ngay_dat_san: Optional[str] = None
     gio_bd: Optional[str] = None
