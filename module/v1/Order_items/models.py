@@ -11,6 +11,3 @@ class OrderItem(Base):
     gio_kt = Column(TIMESTAMP, nullable=False)
     ghi_chu = Column(NVARCHAR(30))
     gia_san_tong = Column(FLOAT)
-    hinh_thuc_thanh_toan = Column(NVARCHAR(20))
-    han_muc_thanh_toan = Column(NVARCHAR(10))
-
