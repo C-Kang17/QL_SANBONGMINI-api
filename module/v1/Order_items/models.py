@@ -10,4 +10,3 @@ class OrderItem(Base):
     gio_bd = Column(TIMESTAMP, nullable=False)
     gio_kt = Column(TIMESTAMP, nullable=False)
     ghi_chu = Column(NVARCHAR(30))
-    gia_san_tong = Column(FLOAT)
