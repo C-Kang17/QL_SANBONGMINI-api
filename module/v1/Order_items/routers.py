@@ -21,8 +21,8 @@ async def get_all_order_items(db: Session = Depends(get_db)):
     return data_order
 
 @router.get("/detail", response_model=schemas.Response)
-async def get_detail_order_item(ma_pds: str, ma_san: str, db: Session = Depends(get_db)):
-    data_order = db.query(models.OrderItem).filter(models.OrderItem.ma_pds == ma_pds, models.OrderItem.ma_san == ma_san).first()
+async def get_detail_order_item(ma_pds: str, db: Session = Depends(get_db)):
+    data_order = db.query(models.OrderItem).filter(models.OrderItem.ma_pds == ma_pds).first()
     if not data_order:
         raise HTTPException(status_code=404, detail="Không tìm thấy phiếu đặt sân nào!")
     return data_order
