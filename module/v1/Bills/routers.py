@@ -11,8 +11,8 @@ from module.v1.Staffs.routers import get_staff_by_ma_nv
 
 
 router = APIRouter(
-    prefix="/module/v1/Bill",
-    tags=["Bills"],
+    prefix="/module/v1/bill",
+    tags=["bills"],
 )
 
 def get_bill_by_ma_hd(ma_hd: str, db: Session):
