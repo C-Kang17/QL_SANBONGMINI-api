@@ -47,6 +47,8 @@ async def create_order(data: schemas.Request, db: Session = Depends(get_db)):
         ma_nv = db_staff.ma_nv,
         ngay_lap = datetime.now(),
         tong_tien_hd = data.tong_tien_hd,
+        hinh_thuc_thanh_toan = data.hinh_thuc_thanh_toan,
+        han_muc_thanh_toan = data.han_muc_thanh_toan,
     )
     db.add(bill)
     db.commit()
