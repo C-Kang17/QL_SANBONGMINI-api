@@ -33,14 +33,15 @@ async def get_detail_bill(ma_hd: str, db: Session = Depends(get_db)):
     return data_bill
 
 @router.post("/create", response_model=schemas.Request)
-async def create_order(data: schemas.Request, db: Session = Depends(get_db)):
+async def create_bill(data: schemas.Request, db: Session = Depends(get_db)):
     ma_hd = services.generate_ma_hd()
     db_order = get_order_by_ma_pds(data.ma_pds, db)
     if not db_order:
         raise HTTPException(status_code=404, detail="Phiếu đặt sân với {data.ma_pds} không tìm thấy!")
-    db_staff = get_staff_by_ma_nv(data.ma_nv, db)
-    if not db_staff:
-        raise HTTPException(status_code=404, detail="Nhân viên với {data.ma_nv} không tìm thấy!")
+    if data.ma_nv is not None:
+        db_staff = get_staff_by_ma_nv(data.ma_nv, db)
+        if not db_staff:
+            raise HTTPException(status_code=404, detail="Nhân viên với {data.ma_nv} không tìm thấy!")
     bill = models.Bill(
         ma_hd = ma_hd,
         ma_pds = db_order.ma_pds,
