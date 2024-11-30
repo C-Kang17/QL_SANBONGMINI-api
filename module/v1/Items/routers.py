@@ -14,9 +14,9 @@ router = APIRouter(
 )
 
 def get_item_by_ma_mh(ma_mh: str, db: Session):
-    db_Item = db.query(models.Items).filter(models.Items.ma_mh == ma_mh).first()
+    db_Item = db.query(models.Items).filter(models.Items.ma_mh == ma_mh).all()
     if db_Item is None:
-        raise HTTPException(status_code=404, detail="Mặt hàng với mã {ma_mh} và không tìm thấy mặt hàng!")
+        raise HTTPException(status_code=404, detail="Mặt hàng với mã {ma_mh} không tìm thấy!")
     return db_Item
 
 @router.get("/all", response_model=List[schemas.response])
@@ -26,7 +26,15 @@ async def get_all_items(db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Không tìm thấy mặt hàng nào")
     return items
 
-@router.get("detail", response_model=schemas.response)
+@router.get("/all/distributor", response_model=List[schemas.response])
+async def get_all_item_from_distributor(ma_npp: str, db: Session = Depends(get_db)):
+    data_distributor = get_distributor_by_ma_npp(ma_npp, db)
+    if data_distributor is None:
+        raise HTTPException(status_code=404, detail="Nhà phân phối với mã {ma_npp} không tìm thấy!")
+    data_item = db.query(models.Items).filter(models.Items.ma_npp == ma_npp).all()
+    return data_item
+
+@router.get("/detail", response_model=List[schemas.response])
 async def get_detail_item(ma_mh: str, db: Session = Depends(get_db)):
     data_item = get_item_by_ma_mh(ma_mh, db)
     return data_item

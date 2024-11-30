@@ -20,11 +20,11 @@ async def get_all_order_commodities_detail(db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Không tìm thấy chi tiết phiếu nhập nào!")
     return data_order_commodities_detail
 
-@router.get("/detail", response_model=schemas.Response)
+@router.get("/detail", response_model=List[schemas.Response])
 async def get_order_commodity_detail(ma_pn: str, db: Session = Depends(get_db)):
-    data_order = db.query(models.OrderCommodityDetail).filter(models.OrderCommodityDetail.ma_pn == ma_pn).first()
+    data_order = db.query(models.OrderCommodityDetail).filter(models.OrderCommodityDetail.ma_pn == ma_pn).all()
     if not data_order:
-        raise HTTPException(status_code=404, detail="Chi tiết phiếu nhập với mã {ma_pn} và mặt hàng với mã {ma_mh} không tìm thấy!")
+        raise HTTPException(status_code=404, detail="Chi tiết phiếu nhập với mã {ma_pn} không tìm thấy!")
     return data_order
 
 @router.post("/create", response_model=schemas.Response)

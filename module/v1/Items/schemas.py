@@ -12,8 +12,8 @@ class Request(BaseModel):
 
 class response(BaseModel):
     ma_mh: str
-    ma_npp: str
-    ten_mh: str
+    ma_npp: Optional[str] = None
+    ten_mh: Optional[str] = None
     don_gia_nhap: float
     don_gia_ban: float
     hinh_anh_mh: Optional[str] = None
