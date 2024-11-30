@@ -34,10 +34,11 @@ async def get_detail_order_commodity(ma_pn: str, db: Session = Depends(get_db)):
 async def create_order_commodity(data: schemas.Request, db: Session = Depends(get_db)):
     db_staff = get_staff_by_ma_nv(data.ma_nv, db)
     ma_pn = services.generate_ma_pn()
+    ten_pn = services.generate_ten_pn(db)
     new_order = models.OrderCommodity(
         ma_pn = ma_pn,
         ma_nv = data.ma_nv,
-        ten_pn = data.ten_pn,
+        ten_pn = ten_pn,
         ngay_nhap = datetime.now(),
         tong_tien_pn = data.tong_tien_pn,
     )
