@@ -21,8 +21,8 @@ async def get_all_order_commodities_detail(db: Session = Depends(get_db)):
     return data_order_commodities_detail
 
 @router.get("/detail", response_model=schemas.Response)
-async def get_order_commodity_detail(ma_pn: str, ma_mh: str, db: Session = Depends(get_db)):
-    data_order = db.query(models.OrderCommodityDetail).filter(models.OrderCommodityDetail.ma_pn == ma_pn, models.OrderCommodityDetail.ma_mh == ma_mh).first()
+async def get_order_commodity_detail(ma_pn: str, db: Session = Depends(get_db)):
+    data_order = db.query(models.OrderCommodityDetail).filter(models.OrderCommodityDetail.ma_pn == ma_pn).first()
     if not data_order:
         raise HTTPException(status_code=404, detail="Chi tiết phiếu nhập với mã {ma_pn} và mặt hàng với mã {ma_mh} không tìm thấy!")
     return data_order
