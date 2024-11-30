@@ -4,7 +4,6 @@ from datetime import datetime
 
 class Request(BaseModel):
     ma_nv: str
-    ten_pn: str
     tong_tien_pn: float
 
     class Config:
