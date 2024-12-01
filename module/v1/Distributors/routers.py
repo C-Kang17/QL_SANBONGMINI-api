@@ -41,7 +41,7 @@ def get_all_distributors(db: Session = Depends(get_db)):
 
 @router.get("/detail", response_model=schemas.DistributorResponse)
 async def get_detail_distributor(ma_npp: str, db: Session = Depends(get_db)):
-    data_distributor = get_detail_distributor(ma_npp, db)
+    data_distributor = get_distributor_by_ma_npp(ma_npp, db)
     return data_distributor
 
 @router.post("/register", response_model=schemas.DistributorResponse, status_code=200)
