@@ -31,11 +31,12 @@ def get_all_distributors(db: Session = Depends(get_db)):
             ma_npp=distributor.ma_npp,
             ten_npp=distributor.ten_npp,
             email_npp=call_function_services.decrypt_rsa(distributor.email_npp, private_key_rsa),
-            sdt_npp=distributor.sdt_npp,
+            sdt_npp=call_function_services.decrypt_lai(distributor.sdt_npp, private_key_rsa),
             dc_npp=distributor.dc_npp,
         )
         for distributor in distributors
     ]
+    
     
     return result
 
@@ -59,7 +60,7 @@ def create_distributor(distributor: schemas.DistributorRegister, db: Session = D
 
     # Encrypt other fields
     encrypt_location = call_function_services.encrypt_des(distributor.dc_npp, key_des)
-    encrypt_phone = call_function_services.encrypt_caesar(distributor.sdt_npp, key)
+    encrypt_phone = call_function_services.encrypt_lai(distributor.sdt_npp, public_key_rsa, key_des)
 
     # Create new distributor entry
     db_distributor = models.Distributor(

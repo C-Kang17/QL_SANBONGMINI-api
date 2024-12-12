@@ -101,14 +101,14 @@ def encrypt_lai(plaintext: str, publickey: str, des_key: str) -> str:
     except cx_Oracle.DatabaseError as e:
         raise HTTPException(status_code=500, detail="Database error: " + str(e))
     
-def decrypt_lai(encrypted_text: str, privatekey: str, des_key: str) -> str:
+def decrypt_lai(encrypted_text: str, privatekey: str) -> str:
     try:
         dsn = cx_Oracle.makedsn(DB_HOST, DB_PORT, service_name=DB_SID)
         connection = cx_Oracle.connect(user=DB_USER, password=DB_PASS, dsn=dsn)
         cursor = connection.cursor()
 
-        decrypted_text = cursor.callfunc("HYBRID.DECRYPT", cx_Oracle.STRING, [encrypted_text, des_key, privatekey])
-
+        decrypted_text = cursor.callfunc("HYBRID.DECRYPT", cx_Oracle.STRING, [encrypted_text, privatekey])
+        print(">>>>>>>>>>>>>>>>>>>>> decrypted_text: ",decrypted_text)
         cursor.close()
         connection.close()
         return decrypted_text
